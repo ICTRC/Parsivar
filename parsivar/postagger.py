@@ -8,7 +8,7 @@ class POSTagger():
                  stanford_postagger_model=None,
                  wapiti_postagger_model=None,
                  jar_tagger_path=None,
-                 jdk_variable_path = "C:/Program Files/Java/jdk1.8.0_121/bin/java.exe",
+                 jdk_variable_path="C:/Program Files/Java/jdk1.8.0_121/bin/java.exe",
                  tagging_model="wapiti"):
 
         import platform
