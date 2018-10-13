@@ -1,6 +1,4 @@
-# Parsivar
-A Language Processing Toolkit for Persian
-
+parsivar
 ------------
 
 Python library for preprocessing Persian text.
@@ -79,6 +77,14 @@ u'یافت'
 >>> chunks = my_chunker.chunk_sentence(text_tags)
 >>> print my_chunker.convert_nestedtree2rawstring(chunks)
 u'[این سمینار DNP] [تا 13 شهریور NPP] [ادامه می‌یابد VP] .'
+
+
+
+>>> from dependency import DependencyParser
+>>> myparser = DependencyParser()
+>>> sent = u'به گزارش ایسنا سمینار شیمی آلی از امروز ۱۱ شهریور ۱۳۹۶ در دانشگاه علم و صنعت ایران آغاز به کار کرد.'
+>>> parsed_sent = myparser.parse_sent(sent)
+>>> print(parsed_sent.tree())
 ```
 
 

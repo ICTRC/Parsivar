@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(name='parsivar',
 	  packages=['parsivar'],
-	  version='0.1.0',
+	  version='0.1.2',
 	  description='Python library for preprocessing Persian text.',
 	  author='ICT',
 	  author_email='',
