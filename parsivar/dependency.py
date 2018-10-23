@@ -32,31 +32,32 @@ class MyMaltParser(MaltParser):
         self.working_dir = parser_dirname
         self.mco = model_filename
         self.pos_tagger = tagger
-        self._malt_bin = os.path.join(parser_dirname, 'maltparser-1.9.1.jar')
+        self._malt_bin = os.path.join(parser_dirname, 'maltparser-1.9.2.jar')
         self.stemmer = stemmer.convert_to_stem if stemmer else lambda w, t: '_'
 
-    def parse_tagged_sent(self, sentence, verbose=False, top_relation_label='null'):
+    def parse_tagged_sent(self, sentences, verbose=False, top_relation_label='null'):
         tmp_file_address = tempfile.gettempdir()
         input_file = tempfile.NamedTemporaryFile(prefix='malt_input.conll', dir=tmp_file_address, delete=False)
         output_file = tempfile.NamedTemporaryFile(prefix='malt_output.conll', dir=tmp_file_address, delete=False)
 
-        for i, (word, tag) in enumerate(sentence, start=1):
-            word = word.strip()
-            if not word:
-                word = '_'
-            input_file.write(('\t'.join([str(i), word.replace(' ', '_'), self.stemmer(word, tag).replace(' ', '_'), tag, tag, '_', '0', 'ROOT', '_', '_', '\n'])).encode('utf8'))
-        input_file.write('\n\n'.encode('utf8'))
+        for sentence in sentences:
+            for i, (word, tag) in enumerate(sentence, start=1):
+                word = word.strip()
+                if not word:
+                    word = '_'
+                input_file.write(('\t'.join([str(i), word.replace(' ', '_'), self.stemmer(word, tag).replace(' ', '_'), tag, tag, '_', '0', 'ROOT', '_', '_', '\n'])).encode('utf8'))
+            input_file.write('\n'.encode('utf8'))
         input_file.close()
 
         cmd = ['java', '-jar', self._malt_bin, '-w', self.working_dir, '-c', self.mco, '-i', input_file.name, '-o', output_file.name, '-m', 'parse']
         if self._execute(cmd, verbose) != 0:
             raise Exception("MaltParser parsing failed: %s" % (' '.join(cmd)))
 
-        dependency_graph = None
+        dependency_graph = []
         with codecs.open(output_file.name, encoding='utf-8') as infile:
-            content = infile.read().strip()
-            if len(content) > 0:
-                dependency_graph = DependencyGraph(content)
+            content = infile.read().strip().split('\n\n')
+            for sent in content:
+                dependency_graph.append(DependencyGraph(sent))
 
         input_file.close()
         output_file.close()
@@ -66,22 +67,37 @@ class MyMaltParser(MaltParser):
 
 
 class DependencyParser:
-    def __init__(self):
+    def __init__(self, _normalizer=None, _tokenizer=None, _stemmer=None, _tagger=None):
         self.dir_path = os.path.dirname(os.path.realpath(__file__)) + "/"
-        self.my_normalizer = normalizer.Normalizer()
-        self.my_tokenizer = tokenizer.Tokenizer()
-        self.my_stemmer = stemmer.FindStems()
-        self.my_tagger = postagger.POSTagger(tagging_model="wapiti").parse
+
+        if _normalizer is None:
+            self.my_normalizer = normalizer.Normalizer()
+        else:
+            self.my_normalizer = _normalizer
+
+        if _tokenizer is None:
+            self.my_tokenizer = tokenizer.Tokenizer()
+        else:
+            self.my_tokenizer = _tokenizer
+
+        if _stemmer is None:
+            self.my_stemmer = stemmer.FindStems()
+        else:
+            self.my_stemmer = _stemmer
+
+        if _tagger is None:
+            self.my_tagger = postagger.POSTagger(tagging_model="wapiti").parse
+        else:
+            self.my_tagger = _tagger
 
         self.parser = MyMaltParser(parser_dirname=self.dir_path + 'resource/dependency_parser',
                                    model_filename='total_dep_parser.mco',
                                    tagger=self.my_tagger,
                                    stemmer=self.my_stemmer)
 
-    def make_trainable_corpus(self, path, tagger=None):
-        if tagger is None:
-            tagger = self.my_tagger
-        with open(path, 'r') as infile:
+    def make_trainable_corpus(self, in_file, out_file):
+        tagger = self.my_tagger
+        with open(in_file, 'r') as infile:
             content = infile.read().strip().split('\n\n')
             for i, sent in enumerate(content):
                 if len(sent) == 0:
@@ -99,13 +115,11 @@ class DependencyParser:
                 sent = '\n'.join(lines)
                 content[i] = sent
         content = '\n\n'.join(content)
-        with open("train_file.conll", 'w') as outfile:
+        with open(out_file, 'w') as outfile:
             outfile.write(content)
         return content
 
-    def parse_sent(self, sent, tagger=None, verbose=False):
-        if tagger is None:
-            tagger = self.my_tagger
-        tokens = self.my_tokenizer.tokenize_words(sent)
-        tagged_sent = tagger(tokens)
-        return self.parser.parse_tagged_sent(tagged_sent, verbose)
+    def parse_sents(self, sents, verbose=False):
+        tagger = self.my_tagger
+        tagged_sents = [tagger(self.my_tokenizer.tokenize_words(sent)) for sent in sents]
+        return self.parser.parse_tagged_sent(tagged_sents, verbose)
