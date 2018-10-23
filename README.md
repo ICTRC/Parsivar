@@ -82,9 +82,10 @@ u'[این سمینار DNP] [تا 13 شهریور NPP] [ادامه می‌یاب
 
 >>> from dependency import DependencyParser
 >>> myparser = DependencyParser()
->>> sent = u'به گزارش ایسنا سمینار شیمی آلی از امروز ۱۱ شهریور ۱۳۹۶ در دانشگاه علم و صنعت ایران آغاز به کار کرد.'
->>> parsed_sent = myparser.parse_sent(sent)
->>> print(parsed_sent.tree())
+>>> sents = u"به گزارش ایسنا سمینار شیمی آلی از امروز ۱۱ شهریور ۱۳۹۶ در دانشگاه علم و صنعت ایران آغاز به کار کرد. این سمینار تا ۱۳ شهریور ادامه می یابد"
+>>> parsed_sents = myparser.parse_sents(sents)
+>>> for depgraph in parsed_sents:
+>>> 	print(depgraph.tree())
 ```
 
 
