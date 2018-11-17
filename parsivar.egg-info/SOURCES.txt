@@ -17,7 +17,7 @@ parsivar.egg-info/SOURCES.txt
 parsivar.egg-info/dependency_links.txt
 parsivar.egg-info/requires.txt
 parsivar.egg-info/top_level.txt
-parsivar/resource/dependency_parser/maltparser-1.9.1.jar
+parsivar/resource/dependency_parser/maltparser-1.9.2.jar
 parsivar/resource/dependency_parser/total_dep_parser.mco
 parsivar/resource/dependency_parser/lib/liblinear-1.8.jar
 parsivar/resource/dependency_parser/lib/libsvm.jar
