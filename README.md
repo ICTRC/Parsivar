@@ -21,7 +21,7 @@ Python library for preprocessing Persian text.
 ## Usage
 
 ```python
->>> tmp_text = u"به گزارش ایسنا سمینار شیمی آلی از امروز ۱۱ شهریور ۱۳۹۶ در دانشگاه علم و صنعت ایران آغاز به کار کرد. این سمینار تا ۱۳ شهریور ادامه می یابد."
+>>> tmp_text = "به گزارش ایسنا سمینار شیمی آلی از امروز ۱۱ شهریور ۱۳۹۶ در دانشگاه علم و صنعت ایران آغاز به کار کرد. این سمینار تا ۱۳ شهریور ادامه می یابد."
 >>> from parsivar import Normalizer
 >>> my_normalizer = Normalizer()
 >>> print(my_normalizer.normalize(tmp_text))
@@ -48,27 +48,26 @@ Python library for preprocessing Persian text.
 >>> my_tokenizer = Tokenizer()
 >>> sents = my_tokenizer.tokenize_sentences(my_normalizer.normalize(tmp_text))
 >>> print(sents)
-[u'به گزارش ایسنا سمینار شیمی آلی از امروز 11 شهریور 1396 در دانشگاه علم و صنعت ایران آغاز به کار کرد .',
- u'این سمینار تا 13 شهریور ادامه می‌یابد .']
+['به گزارش ایسنا سمینار شیمی آلی از امروز 11 شهریور 1396 در دانشگاه علم و صنعت ایران آغاز به کار کرد .', 'این سمینار تا 13 شهریور ادامه می\u200cیابد .']
 
  
 >>> words = my_tokenizer.tokenize_words(my_normalizer.normalize(tmp_text))
 >>> print(words)
-[u'به', u'گزارش', u'ایسنا', u'سمینار', u'شیمی', u'آلی', u'از', u'امروز', u'11', u'شهریور', u'1396', u'در', u'دانشگاه', u'علم', u'و', u'صنعت', u'ایران', u'آغاز', u'به', u'کار', u'کرد', u'.', u'این', u'سمینار', u'تا', u'13', u'شهریور', u'ادامه', u'می‌یابد', u'.']
+['به', 'گزارش', 'ایسنا', 'سمینار', 'شیمی', 'آلی', 'از', 'امروز', '11', 'شهریور', '1396', 'در', 'دانشگاه', 'علم', 'و', 'صنعت', 'ایران', 'آغاز', 'به', 'کار', 'کرد', '.', 'این', 'سمینار', 'تا', '13', 'شهریور', 'ادامه', 'می\u200cیابد', '.']
  
  
 >>> from parsivar import FindStems
 >>> my_stemmer = FindStems()
->>> print(my_stemmer.convert_to_stem(u"بیابیم"))
-u'یافت'
+>>> print(my_stemmer.convert_to_stem("بیابیم"))
+'یافت'
  
  
  
 >>> from parsivar import POSTagger
 >>> my_tagger = POSTagger(tagging_model="wapiti")  # tagging_model = "wapiti" or "stanford". "wapiti" is faster than "stanford"
->>> text_tags = my_tagger.parse(my_tokenizer.tokenize_words(u"این سمینار تا 13 شهریور ادامه می‌یابد ."))
+>>> text_tags = my_tagger.parse(my_tokenizer.tokenize_words("این سمینار تا 13 شهریور ادامه می‌یابد ."))
 >>> print(text_tags)
-[(u'این', u'DET'), (u'سمینار', u'N_SING'), (u'تا', u'P'), (u'13', u'NUM'), (u'شهریور', u'N_SING'), (u'ادامه', u'N_SING'), (u'می‌یابد', u'V_PRS'), (u'.', u'.')]
+[('این', 'DET'), ('سمینار', 'N_SING'), ('تا', 'P'), ('13', 'NUM'), ('شهریور', 'N_SING'), ('ادامه', 'N_SING'), ('می\u200cیابد', 'V_PRS'), ('.', '.')]
  
  
  
@@ -76,17 +75,20 @@ u'یافت'
 >>> my_chunker = FindChunks()
 >>> chunks = my_chunker.chunk_sentence(text_tags)
 >>> print(my_chunker.convert_nestedtree2rawstring(chunks))
-u'[این سمینار DNP] [تا 13 شهریور NPP] [ادامه می‌یابد VP] .'
+[این سمینار DNP] [تا 13 شهریور NPP] [ادامه می‌یابد VP] .
 
 
 
 >>> from parsivar import DependencyParser
 >>> myparser = DependencyParser()
->>> sents = u"به گزارش ایسنا سمینار شیمی آلی از امروز ۱۱ شهریور ۱۳۹۶ در دانشگاه علم و صنعت ایران آغاز به کار کرد. این سمینار تا ۱۳ شهریور ادامه می یابد"
+>>> sents = "به گزارش ایسنا سمینار شیمی آلی از امروز ۱۱ شهریور ۱۳۹۶ در دانشگاه علم و صنعت ایران آغاز به کار کرد. این سمینار تا ۱۳ شهریور ادامه می یابد"
 >>> sent_list = my_tokenizer.tokenize_sentences(sents)
 >>> parsed_sents = myparser.parse_sents(sent_list)
 >>> for depgraph in parsed_sents:
 >>> 	print(depgraph.tree())
+(به (گزارش (ایسنا (سمینار (شیمی آلی)))))
+(یابد (سمینار این) (تا (شهریور ۱۳)) ادامه می)
+
 ```
 
 
