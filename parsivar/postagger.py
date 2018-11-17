@@ -1,4 +1,3 @@
-# coding=utf-8
 import os
 from nltk.tag.stanford import StanfordPOSTagger
 import re
@@ -17,25 +16,22 @@ class POSTagger():
         else:
             self.tagging_model = tagging_model
 
-
         self.dir_path = os.path.dirname(os.path.realpath(__file__)) + "/"
 
-        if stanford_postagger_model == None:
+        if stanford_postagger_model is None:
             self.stanford_postagger_model = self.dir_path + "resource/postagger/NC_model"
         else:
             self.stanford_postagger_model = stanford_postagger_model
 
-        if jar_tagger_path == None:
+        if jar_tagger_path is None:
             self.jar_tagger_path = self.dir_path + 'resource/postagger/stanford-postagger.jar'
         else:
             self.jar_tagger_path = jar_tagger_path
 
-        if wapiti_postagger_model == None:
-            self.wapiti_postagger_model = self.dir_path +"resource/postagger/UPC_full_model_wapiti"
+        if wapiti_postagger_model is None:
+            self.wapiti_postagger_model = self.dir_path + "resource/postagger/UPC_full_model_wapiti"
         else:
             self.wapiti_postagger_model = wapiti_postagger_model
-
-
 
         if self.tagging_model == "stanford":
             java_path = jdk_variable_path
@@ -50,8 +46,8 @@ class POSTagger():
             self.tagger = Model(model=self.wapiti_postagger_model)
 
     def is_all_latin(self, word):
-        pattern = u'[a-zA-Z]*'
-        w = re.sub(pattern, u'', word)
+        pattern = '[a-zA-Z]*'
+        w = re.sub(pattern, '', word)
         if len(w) == 0:
             return True
         else:
@@ -62,15 +58,15 @@ class POSTagger():
         if self.tagging_model == "stanford":
             postags = self.tagger.tag(token_list)
             for element in postags:
-                tmp = u'_'.join(t for t in element)
-                tmp = tmp.strip(u"_")
-                tmp = tmp.split(u'/')
+                tmp = '_'.join(t for t in element)
+                tmp = tmp.strip("_")
+                tmp = tmp.split('/')
                 tag = tmp[-1]
                 tmp = tmp[:-1]
-                tmp = u'/'.join(i for i in tmp)
-                tmp = tmp.strip(u'/')
+                tmp = '/'.join(i for i in tmp)
+                tmp = tmp.strip('/')
                 if self.is_all_latin(tmp):
-                    tagged_tuples.append((tmp, u"FW"))
+                    tagged_tuples.append((tmp, "FW"))
                 else:
                     tagged_tuples.append((tmp, tag))
 
@@ -83,5 +79,4 @@ class POSTagger():
                     tagged_tuples.append((el, u"FW"))
                 else:
                     tagged_tuples.append((el, postags[i]))
-
         return tagged_tuples

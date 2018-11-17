@@ -1,11 +1,8 @@
-# coding=utf-8
-
 import nltk
 
 class FindChunks():
-
     def __init__(self):
-        self.grammar = ur"""
+        self.grammar = r"""
                         VP: {<ADJ_SIM><V_PRS>}
                         VP: {<ADJ_INO><V.*>}
                         VP: {<V_PRS><N_SING><V_SUB>}
@@ -26,17 +23,17 @@ class FindChunks():
         self.cp = nltk.RegexpParser(self.grammar)
 
     def convert_nestedtree2rawstring(self, tree, d=0):
-        s = u''
+        s = ''
         for item in tree:
             if isinstance(item, tuple):
-                s += item[0] + u' '
+                s += item[0] + ' '
             elif d >= 1:
                 news = self.convert_nestedtree2rawstring(item, d + 1)
-                s += news + u' '
+                s += news + ' '
             else:
                 tag = item._label
-                news = u'[' + self.convert_nestedtree2rawstring(item, d + 1) + u' ' + tag + u']'
-                s += news + u' '
+                news = '[' + self.convert_nestedtree2rawstring(item, d + 1) + ' ' + tag + ']'
+                s += news + ' '
         return s.strip()
 
     def chunk_sentence(self, pos_taged_tuples):

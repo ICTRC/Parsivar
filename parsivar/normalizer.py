@@ -1,20 +1,20 @@
-# coding=utf-8
 from re import sub
-import data_helper
-import tokenizer
-import token_merger
 import copy
 import os
+from .tokenizer import Tokenizer
+from .data_helper import DataHelper
+from .token_merger import ClassifierChunkParser
+import tmp
 
 class Normalizer():
 
     def __init__(self,
-                 half_space_char=u'\u200c',
+                 half_space_char='\u200c',
                  statistical_space_correction=False,
                  date_normalizing_needed=False,
                  pinglish_conversion_needed=False,
-                 train_file_path = "resource/tokenizer/Bijan_khan_chunk.txt",
-                 token_merger_path = "resource/tokenizer/TokenMerger.pckl"):
+                 train_file_path="resource/tokenizer/Bijan_khan_chunk.txt",
+                 token_merger_path="resource/tokenizer/TokenMerger.pckl"):
         self.dir_path = os.path.dirname(os.path.realpath(__file__)) + "/"
 
         self.dic1_path = self.dir_path + 'resource/normalizer/Dic1_new.txt'
@@ -27,10 +27,12 @@ class Normalizer():
         self.statistical_space_correction = statistical_space_correction
         self.date_normalizing_needed = date_normalizing_needed
         self.pinglish_conversion_needed = pinglish_conversion_needed
+        self.data_helper = DataHelper()
+        self.token_merger = ClassifierChunkParser()
 
 
         if self.date_normalizing_needed or self.pinglish_conversion_needed:
-            self.tokenizer = tokenizer.Tokenizer()
+            self.tokenizer = Tokenizer()
             self.date_normalizer = DateNormalizer()
             self.pinglish_conversion = PinglishNormalizer()
 
@@ -40,201 +42,201 @@ class Normalizer():
             self.half_space_char = half_space_char
 
             if os.path.isfile(self.token_merger_path):
-                self.token_merger_model = data_helper.load_var(self.token_merger_path)
+                self.token_merger_model = self.data_helper.load_var(self.token_merger_path)
             elif os.path.isfile(self.train_file_path):
-                self.token_merger_model = token_merger.train_merger(self.train_file_path, test_split=0)
-                data_helper.save_var(self.token_merger_path, self.token_merger_model)
+                self.token_merger_model = self.token_merger.train_merger(self.train_file_path, test_split=0)
+                self.data_helper.save_var(self.token_merger_path, self.token_merger_model)
 
 
 
 
     def load_dictionary(self, file_path):
         dict = {}
-        with open(file_path, 'r') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             g = f.readlines()
             for Wrds in g:
                 wrd = Wrds.split(' ')
-                dict[wrd[0].decode('utf-8').strip()] = sub('\n', '', wrd[1].decode('utf-8').strip())
+                dict[wrd[0].strip()] = sub('\n', '', wrd[1].strip())
         return dict
 
     def sub_alphabets(self, doc_string):
-        try:
-            doc_string = doc_string.decode('utf-8')
-        except UnicodeEncodeError:
-            pass
-        a0 = ur"ء"
-        b0 = ur"ئ"
+        # try:
+        #     doc_string = doc_string.decode('utf-8')
+        # except UnicodeEncodeError:
+        #     pass
+        a0 = "ء"
+        b0 = "ئ"
         c0 = sub(a0, b0, doc_string)
-        a1 = ur"ٲ|ٱ|إ|ﺍ|أ"
-        a11 = ur"ﺁ|آ"
-        b1 = ur"ا"
-        b11 = ur"آ"
+        a1 = r"ٲ|ٱ|إ|ﺍ|أ"
+        a11 = r"ﺁ|آ"
+        b1 = r"ا"
+        b11 = r"آ"
         c11 = sub(a11, b11, c0)
         c1 = sub(a1, b1, c11)
-        a2 = ur"ﺐ|ﺏ|ﺑ"
-        b2 = ur"ب"
+        a2 = r"ﺐ|ﺏ|ﺑ"
+        b2 = r"ب"
         c2 = sub(a2, b2, c1)
-        a3 = ur"ﭖ|ﭗ|ﭙ|ﺒ|ﭘ"
-        b3 = ur"پ"
+        a3 = r"ﭖ|ﭗ|ﭙ|ﺒ|ﭘ"
+        b3 = r"پ"
         c3 = sub(a3, b3, c2)
-        a4 = ur"ﭡ|ٺ|ٹ|ﭞ|ٿ|ټ|ﺕ|ﺗ|ﺖ|ﺘ"
-        b4 = ur"ت"
+        a4 = r"ﭡ|ٺ|ٹ|ﭞ|ٿ|ټ|ﺕ|ﺗ|ﺖ|ﺘ"
+        b4 = r"ت"
         c4 = sub(a4, b4, c3)
-        a5 = ur"ﺙ|ﺛ"
-        b5 = ur"ث"
+        a5 = r"ﺙ|ﺛ"
+        b5 = r"ث"
         c5 = sub(a5, b5, c4)
-        a6 = ur"ﺝ|ڃ|ﺠ|ﺟ"
-        b6 = ur"ج"
+        a6 = r"ﺝ|ڃ|ﺠ|ﺟ"
+        b6 = r"ج"
         c6 = sub(a6, b6, c5)
-        a7 = ur"ڃ|ﭽ|ﭼ"
-        b7 = ur"چ"
+        a7 = r"ڃ|ﭽ|ﭼ"
+        b7 = r"چ"
         c7 = sub(a7, b7, c6)
-        a8 = ur"ﺢ|ﺤ|څ|ځ|ﺣ"
-        b8 = ur"ح"
+        a8 = r"ﺢ|ﺤ|څ|ځ|ﺣ"
+        b8 = r"ح"
         c8 = sub(a8, b8, c7)
-        a9 = ur"ﺥ|ﺦ|ﺨ|ﺧ"
-        b9 = ur"خ"
+        a9 = r"ﺥ|ﺦ|ﺨ|ﺧ"
+        b9 = r"خ"
         c9 = sub(a9, b9, c8)
-        a10 = ur"ڏ|ډ|ﺪ|ﺩ"
-        b10 = ur"د"
+        a10 = r"ڏ|ډ|ﺪ|ﺩ"
+        b10 = r"د"
         c10 = sub(a10, b10, c9)
-        a11 = ur"ﺫ|ﺬ|ﻧ"
-        b11 = ur"ذ"
+        a11 = r"ﺫ|ﺬ|ﻧ"
+        b11 = r"ذ"
         c11 = sub(a11, b11, c10)
-        a12 = ur"ڙ|ڗ|ڒ|ڑ|ڕ|ﺭ|ﺮ"
-        b12 = ur"ر"
+        a12 = r"ڙ|ڗ|ڒ|ڑ|ڕ|ﺭ|ﺮ"
+        b12 = r"ر"
         c12 = sub(a12, b12, c11)
-        a13 = ur"ﺰ|ﺯ"
-        b13 = ur"ز"
+        a13 = r"ﺰ|ﺯ"
+        b13 = r"ز"
         c13 = sub(a13, b13, c12)
-        a14 = ur"ﮊ"
-        b14 = ur"ژ"
+        a14 = r"ﮊ"
+        b14 = r"ژ"
         c14 = sub(a14, b14, c13)
-        a15 = ur"ݭ|ݜ|ﺱ|ﺲ|ښ|ﺴ|ﺳ"
-        b15 = ur"س"
+        a15 = r"ݭ|ݜ|ﺱ|ﺲ|ښ|ﺴ|ﺳ"
+        b15 = r"س"
         c15 = sub(a15, b15, c14)
-        a16 = ur"ﺵ|ﺶ|ﺸ|ﺷ"
-        b16 = ur"ش"
+        a16 = r"ﺵ|ﺶ|ﺸ|ﺷ"
+        b16 = r"ش"
         c16 = sub(a16, b16, c15)
-        a17 = ur"ﺺ|ﺼ|ﺻ"
-        b17 = ur"ص"
+        a17 = r"ﺺ|ﺼ|ﺻ"
+        b17 = r"ص"
         c17 = sub(a17, b17, c16)
-        a18 = ur"ﺽ|ﺾ|ﺿ|ﻀ"
-        b18 = ur"ض"
+        a18 = r"ﺽ|ﺾ|ﺿ|ﻀ"
+        b18 = r"ض"
         c18 = sub(a18, b18, c17)
-        a19 = ur"ﻁ|ﻂ|ﻃ|ﻄ"
-        b19 = ur"ط"
+        a19 = r"ﻁ|ﻂ|ﻃ|ﻄ"
+        b19 = r"ط"
         c19 = sub(a19, b19, c18)
-        a20 = ur"ﻆ|ﻇ|ﻈ"
-        b20 = ur"ظ"
+        a20 = r"ﻆ|ﻇ|ﻈ"
+        b20 = r"ظ"
         c20 = sub(a20, b20, c19)
-        a21 = ur"ڠ|ﻉ|ﻊ|ﻋ"
-        b21 = ur"ع"
+        a21 = r"ڠ|ﻉ|ﻊ|ﻋ"
+        b21 = r"ع"
         c21 = sub(a21, b21, c20)
-        a22 = ur"ﻎ|ۼ|ﻍ|ﻐ|ﻏ"
-        b22 = ur"غ"
+        a22 = r"ﻎ|ۼ|ﻍ|ﻐ|ﻏ"
+        b22 = r"غ"
         c22 = sub(a22, b22, c21)
-        a23 = ur"ﻒ|ﻑ|ﻔ|ﻓ"
-        b23 = ur"ف"
+        a23 = r"ﻒ|ﻑ|ﻔ|ﻓ"
+        b23 = r"ف"
         c23 = sub(a23, b23, c22)
-        a24 = ur"ﻕ|ڤ|ﻖ|ﻗ"
-        b24 = ur"ق"
+        a24 = r"ﻕ|ڤ|ﻖ|ﻗ"
+        b24 = r"ق"
         c24 = sub(a24, b24, c23)
-        a25 = ur"ڭ|ﻚ|ﮎ|ﻜ|ﮏ|ګ|ﻛ|ﮑ|ﮐ|ڪ|ك"
-        b25 = ur"ک"
+        a25 = r"ڭ|ﻚ|ﮎ|ﻜ|ﮏ|ګ|ﻛ|ﮑ|ﮐ|ڪ|ك"
+        b25 = r"ک"
         c25 = sub(a25, b25, c24)
-        a26 = ur"ﮚ|ﮒ|ﮓ|ﮕ|ﮔ"
-        b26 = ur"گ"
+        a26 = r"ﮚ|ﮒ|ﮓ|ﮕ|ﮔ"
+        b26 = r"گ"
         c26 = sub(a26, b26, c25)
-        a27 = ur"ﻝ|ﻞ|ﻠ|ڵ"
-        b27 = ur"ل"
+        a27 = r"ﻝ|ﻞ|ﻠ|ڵ"
+        b27 = r"ل"
         c27 = sub(a27, b27, c26)
-        a28 = ur"ﻡ|ﻤ|ﻢ|ﻣ"
-        b28 = ur"م"
+        a28 = r"ﻡ|ﻤ|ﻢ|ﻣ"
+        b28 = r"م"
         c28 = sub(a28, b28, c27)
-        a29 = ur"ڼ|ﻦ|ﻥ|ﻨ"
-        b29 = ur"ن"
+        a29 = r"ڼ|ﻦ|ﻥ|ﻨ"
+        b29 = r"ن"
         c29 = sub(a29, b29, c28)
-        a30 = ur"ވ|ﯙ|ۈ|ۋ|ﺆ|ۊ|ۇ|ۏ|ۅ|ۉ|ﻭ|ﻮ|ؤ"
-        b30 = ur"و"
+        a30 = r"ވ|ﯙ|ۈ|ۋ|ﺆ|ۊ|ۇ|ۏ|ۅ|ۉ|ﻭ|ﻮ|ؤ"
+        b30 = r"و"
         c30 = sub(a30, b30, c29)
-        a31 = ur"ﺔ|ﻬ|ھ|ﻩ|ﻫ|ﻪ|ۀ|ە|ة|ہ"
-        b31 = ur"ه"
+        a31 = r"ﺔ|ﻬ|ھ|ﻩ|ﻫ|ﻪ|ۀ|ە|ة|ہ"
+        b31 = r"ه"
         c31 = sub(a31, b31, c30)
-        a32 = ur"ﭛ|ﻯ|ۍ|ﻰ|ﻱ|ﻲ|ں|ﻳ|ﻴ|ﯼ|ې|ﯽ|ﯾ|ﯿ|ێ|ے|ى|ي"
-        b32 = ur"ی"
+        a32 = r"ﭛ|ﻯ|ۍ|ﻰ|ﻱ|ﻲ|ں|ﻳ|ﻴ|ﯼ|ې|ﯽ|ﯾ|ﯿ|ێ|ے|ى|ي"
+        b32 = r"ی"
         c32 = sub(a32, b32, c31)
-        a33 = ur'¬'
-        b33 = ur'‌'
+        a33 = r'¬'
+        b33 = r'‌'
         c33 = sub(a33, b33, c32)
-        pa0 = ur'•|·|●|·|・|∙|｡|ⴰ'
-        pb0 = ur'.'
+        pa0 = r'•|·|●|·|・|∙|｡|ⴰ'
+        pb0 = r'.'
         pc0 = sub(pa0, pb0, c33)
-        pa1 = ur',|٬|٫|‚|，'
-        pb1 = ur'،'
+        pa1 = r',|٬|٫|‚|，'
+        pb1 = r'،'
         pc1 = sub(pa1, pb1, pc0)
-        pa2 = ur'ʕ'
-        pb2 = ur'؟'
+        pa2 = r'ʕ'
+        pb2 = r'؟'
         pc2 = sub(pa2, pb2, pc1)
-        na0 = ur'۰|٠'
-        nb0 = ur'0'
+        na0 = r'۰|٠'
+        nb0 = r'0'
         nc0 = sub(na0, nb0, pc2)
-        na1 = ur'۱|١'
-        nb1 = ur'1'
+        na1 = r'۱|١'
+        nb1 = r'1'
         nc1 = sub(na1, nb1, nc0)
-        na2 = ur'۲|٢'
-        nb2 = ur'2'
+        na2 = r'۲|٢'
+        nb2 = r'2'
         nc2 = sub(na2, nb2, nc1)
-        na3 = ur'۳|٣'
-        nb3 = ur'3'
+        na3 = r'۳|٣'
+        nb3 = r'3'
         nc3 = sub(na3, nb3, nc2)
-        na4 = ur'۴|٤'
-        nb4 = ur'4'
+        na4 = r'۴|٤'
+        nb4 = r'4'
         nc4 = sub(na4, nb4, nc3)
-        na5 = ur'۵'
-        nb5 = ur'5'
+        na5 = r'۵'
+        nb5 = r'5'
         nc5 = sub(na5, nb5, nc4)
-        na6 = ur'۶|٦'
-        nb6 = ur'6'
+        na6 = r'۶|٦'
+        nb6 = r'6'
         nc6 = sub(na6, nb6, nc5)
-        na7 = ur'۷|٧'
-        nb7 = ur'7'
+        na7 = r'۷|٧'
+        nb7 = r'7'
         nc7 = sub(na7, nb7, nc6)
-        na8 = ur'۸|٨'
-        nb8 = ur'8'
+        na8 = r'۸|٨'
+        nb8 = r'8'
         nc8 = sub(na8, nb8, nc7)
-        na9 = ur'۹|٩'
-        nb9 = ur'9'
+        na9 = r'۹|٩'
+        nb9 = r'9'
         nc9 = sub(na9, nb9, nc8)
-        ea1 = ur'ـ|ِ|ُ|َ|ٍ|ٌ|ً|'
-        eb1 = ur''
+        ea1 = r'ـ|ِ|ُ|َ|ٍ|ٌ|ً|'
+        eb1 = r''
         ec1 = sub(ea1, eb1, nc9)
-        Sa1 = ur'( )+'
-        Sb1 = ur' '
+        Sa1 = r'( )+'
+        Sb1 = r' '
         Sc1 = sub(Sa1, Sb1, ec1)
-        Sa2 = ur'(\n)+'
-        Sb2 = ur'\n'
+        Sa2 = r'(\n)+'
+        Sb2 = r'\n'
         Sc2 = sub(Sa2, Sb2, Sc1)
         return Sc2
 
     def space_correction(self, doc_string):
-        a00 = ur'^(بی|می|نمی)( )'
-        b00 = ur'\1‌'
+        a00 = r'^(بی|می|نمی)( )'
+        b00 = r'\1‌'
         c00 = sub(a00, b00, doc_string)
-        a0 = ur'( )(می|نمی|بی)( )'
-        b0 = ur'\1\2‌'
+        a0 = r'( )(می|نمی|بی)( )'
+        b0 = r'\1\2‌'
         c0 = sub(a0, b0, c00)
-        a1 = ur'( )(هایی|ها|های|ایی|هایم|هایت|هایش|هایمان|هایتان|هایشان|ات|ان|ین' \
-             ur'|انی|بان|ام|ای|یم|ید|اید|اند|بودم|بودی|بود|بودیم|بودید|بودند|ست)( )'
-        b1 = ur'‌\2\3'
+        a1 = r'( )(هایی|ها|های|ایی|هایم|هایت|هایش|هایمان|هایتان|هایشان|ات|ان|ین' \
+             r'|انی|بان|ام|ای|یم|ید|اید|اند|بودم|بودی|بود|بودیم|بودید|بودند|ست)( )'
+        b1 = r'‌\2\3'
         c1 = sub(a1, b1, c0)
-        a2 = ur'( )(شده|نشده)( )'
-        b2 = ur'‌\2‌'
+        a2 = r'( )(شده|نشده)( )'
+        b2 = r'‌\2‌'
         c2 = sub(a2, b2, c1)
-        a3 = ur'( )(طلبان|طلب|گرایی|گرایان|شناس|شناسی|گذاری|گذار|گذاران|شناسان|گیری|پذیری|بندی|آوری|سازی|' \
-             ur'بندی|کننده|کنندگان|گیری|پرداز|پردازی|پردازان|آمیز|سنجی|ریزی|داری|دهنده|آمیز|پذیری' \
-             ur'|پذیر|پذیران|گر|ریز|ریزی|رسانی|یاب|یابی|گانه|گانه‌ای|انگاری|گا|بند|رسانی|دهندگان|دار)( )'
-        b3 = ur'‌\2\3'
+        a3 = r'( )(طلبان|طلب|گرایی|گرایان|شناس|شناسی|گذاری|گذار|گذاران|شناسان|گیری|پذیری|بندی|آوری|سازی|' \
+             r'بندی|کننده|کنندگان|گیری|پرداز|پردازی|پردازان|آمیز|سنجی|ریزی|داری|دهنده|آمیز|پذیری' \
+             r'|پذیر|پذیران|گر|ریز|ریزی|رسانی|یاب|یابی|گانه|گانه‌ای|انگاری|گا|بند|رسانی|دهندگان|دار)( )'
+        b3 = r'‌\2\3'
         c3 = sub(a3, b3, c2)
         return c3
 
@@ -268,7 +270,7 @@ class Normalizer():
         return out_sentences
 
     def space_correction_plus3(self, doc_string):
-        # Dict = {u'گفتوگو': u'گفت‌وگو'}
+        # Dict = {'گفتوگو': 'گفت‌وگو'}
         out_sentences = ''
         wrds = doc_string.split(' ')
         L = wrds.__len__()
@@ -296,14 +298,14 @@ class Normalizer():
 
     def normalize(self, doc_string):
         #return data_helper.clean_text(self.sub_alphabets(doc_string))
-        normalized_string = data_helper.clean_text(self.sub_alphabets(doc_string)).strip()
+        normalized_string = self.data_helper.clean_text(self.sub_alphabets(doc_string)).strip()
 
         if self.statistical_space_correction:
             token_list = normalized_string.strip().split()
-            token_list = [x.strip(u"\u200c") for x in token_list if len(x.strip(u"\u200c")) != 0]
-            token_list = token_merger.merg_tokens(token_list, self.token_merger_model, self.half_space_char)
+            token_list = [x.strip("\u200c") for x in token_list if len(x.strip("\u200c")) != 0]
+            token_list = self.token_merger.merg_tokens(token_list, self.token_merger_model, self.half_space_char)
             normalized_string = " ".join(x for x in token_list)
-            normalized_string = data_helper.clean_text(normalized_string)
+            normalized_string = self.data_helper.clean_text(normalized_string)
         else:
             normalized_string = self.space_correction(self.space_correction_plus1(self.space_correction_plus2(self.space_correction_plus3(normalized_string)))).strip()
 
@@ -319,64 +321,63 @@ class Normalizer():
 class DateNormalizer():
     def __init__(self):
 
-        self.month_dict = {u"فروردین": 1, u"اردیبهشت": 2, u"خرداد": 3,
-                           u"تیر": 4, u"مرداد": 5, u"شهریور": 6,
-                           u"مهر": 7, u"آبان": 8, u"آذر": 9,
-                           u"دی": 10, u"بهمن": 11, u"اسفند": 12}
+        self.month_dict = {"فروردین": 1, "اردیبهشت": 2, "خرداد": 3,
+                           "تیر": 4, "مرداد": 5, "شهریور": 6,
+                           "مهر": 7, "آبان": 8, "آذر": 9,
+                           "دی": 10, "بهمن": 11, "اسفند": 12}
 
-        self.num_dict = {u"صد": 100, u"هزار": 1000, u"میلیون": 1000000, u"دویست": 200,
-                         u"ده": 10, u"نه": 9, u"هشت": 8, u"هفت": 7, u"شش": 6, u"پنج": 5,
-                         u"چهار": 4, u"سه": 3, u"دو": 2, u"یک": 1, u"یازده": 11, u"سیزده": 13,
-                         u"چهارده": 14, u"دوازده": 12, u"پانزده": 15, u"شانزده": 16, u"هفده": 17,
-                         u"هجده": 18, u"نوزده": 19, u"بیست": 20, u"سی": 30, u"چهل": 40, u"پنجاه": 50,
-                         u"شصت": 60, u"هفتاد": 70, u"نود": 90, u"سیصد": 300, u"چهارصد": 400,
-                         u"پانصد": 500, u"ششصد": 600, u"هفتصد": 700, u"هشتصد": 800, u"نهصد": 900,
-                         u"هشتاد": 80, u" ": 0, u"میلیارد": 1000000000,
-                         u"صدم": 100, u"هزارم": 1000, u"دویستم": 200,
-                         u"دهم": 10, u"نهم": 9, u"هشتم": 8, u"هفتم": 7, u"ششم": 6, u"پنجم": 5,
-                         u"چهارم": 4, u"سوم": 3, u"دوم": 2, u"یکم": 1, u"اول" : 1, u"یازدهم": 11, u"سیزدهم": 13,
-                         u"چهاردهم": 14, u"دوازدهم": 12, u"پانزدهم": 15, u"شانزدهم": 16, u"هفدهم": 17,
-                         u"هجدهم": 18, u"نوزدهم": 19, u"بیستم": 20, u"چهلم": 40, u"پنجاهم": 50,
-                         u"شصتم": 60, u"هفتادم": 70, u"نودم": 90, u"سیصدم": 300, u"چهارصدم": 400,
-                         u"پانصدم": 500, u"ششصدم": 600, u"هفتصدم": 700, u"هشتصدم": 800, u"نهصدم": 900,
-                         u"هشتادم": 80}
+        self.num_dict = {"صد": 100, "هزار": 1000, "میلیون": 1000000, "دویست": 200,
+                         "ده": 10, "نه": 9, "هشت": 8, "هفت": 7, "شش": 6, "پنج": 5,
+                         "چهار": 4, "سه": 3, "دو": 2, "یک": 1, "یازده": 11, "سیزده": 13,
+                         "چهارده": 14, "دوازده": 12, "پانزده": 15, "شانزده": 16, "هفده": 17,
+                         "هجده": 18, "نوزده": 19, "بیست": 20, "سی": 30, "چهل": 40, "پنجاه": 50,
+                         "شصت": 60, "هفتاد": 70, "نود": 90, "سیصد": 300, "چهارصد": 400,
+                         "پانصد": 500, "ششصد": 600, "هفتصد": 700, "هشتصد": 800, "نهصد": 900,
+                         "هشتاد": 80, " ": 0, "میلیارد": 1000000000,
+                         "صدم": 100, "هزارم": 1000, "دویستم": 200,
+                         "دهم": 10, "نهم": 9, "هشتم": 8, "هفتم": 7, "ششم": 6, "پنجم": 5,
+                         "چهارم": 4, "سوم": 3, "دوم": 2, "یکم": 1, "اول": 1, "یازدهم": 11, "سیزدهم": 13,
+                         "چهاردهم": 14, "دوازدهم": 12, "پانزدهم": 15, "شانزدهم": 16, "هفدهم": 17,
+                         "هجدهم": 18, "نوزدهم": 19, "بیستم": 20, "چهلم": 40, "پنجاهم": 50,
+                         "شصتم": 60, "هفتادم": 70, "نودم": 90, "سیصدم": 300, "چهارصدم": 400,
+                         "پانصدم": 500, "ششصدم": 600, "هفتصدم": 700, "هشتصدم": 800, "نهصدم": 900,
+                         "هشتادم": 80}
 
     def find_date_part(self, token_list):
         for index, element in enumerate(token_list):
-            if element == u"/":
+            if element == "/":
                 if index-1 >= 0 and index+1 < len(token_list) \
                         and token_list[index -1].isdigit() and token_list[index+1].isdigit():
-                    if index+3 < len(token_list) and token_list[index+2] == u"/" \
+                    if index+3 < len(token_list) and token_list[index+2] == "/" \
                             and token_list[index + 3].isdigit():
                         formal_date = [int(token_list[index-1]), int(token_list[index+1]), int(token_list[index+3])]
-                        formal_date = u"y" + str(formal_date[2]) + u"m" + str(formal_date[1]) + u"d" + str(formal_date[0])
+                        formal_date = "y" + str(formal_date[2]) + "m" + str(formal_date[1]) + "d" + str(formal_date[0])
                         return formal_date, index-1, index+3
                     else:
                         formal_date = [int(token_list[index-1]), int(token_list[index+ 1]), 0]
-                        formal_date = u"y" + str(formal_date[2]) + u"m" + str(formal_date[1]) + u"d" + str(formal_date[0])
+                        formal_date = "y" + str(formal_date[2]) + "m" + str(formal_date[1]) + "d" + str(formal_date[0])
                         return formal_date, index-1 , index+1
 
-            if element in self.month_dict or element==u"سال":
+            if element in self.month_dict or element == "سال":
                 if index + 1 < len(token_list) and index - 1 > -2:
                     try:
                         formal_date = [int(token_list[index - 1]), int(self.month_dict[token_list[index]]), int(token_list[index + 1])]
-                        formal_date = u"y" + str(formal_date[2]) + u"m" + str(formal_date[1]) + u"d" + str(formal_date[0])
+                        formal_date = "y" + str(formal_date[2]) + "m" + str(formal_date[1]) + "d" + str(formal_date[0])
                         if token_list[index - 1] and token_list[index + 1]:
                             return formal_date, index-1, index+1
                     except:
                         try:
                             formal_date = [int(token_list[index - 1]), int(self.month_dict[token_list[index]]), 0]
-                            formal_date = u"y" + str(formal_date[2]) + u"m" + str(formal_date[1]) + u"d" + str(formal_date[0])
+                            formal_date = "y" + str(formal_date[2]) + "m" + str(formal_date[1]) + "d" + str(formal_date[0])
                             return formal_date, index-1, index
                         except:
                             try:
-                                if(token_list[index] == u"سال"):
+                                if token_list[index] == "سال":
                                     formal_date = [int(token_list[index + 1]),0, 0]
-                                    formal_date = u"y" + str(formal_date[2]) + u"m" + str(formal_date[1]) + u"d" + str(formal_date[0])
+                                    formal_date = "y" + str(formal_date[2]) + "m" + str(formal_date[1]) + "d" + str(formal_date[0])
                                     return formal_date, index+1, index+1
                                 else:
-                                    print "error"
-                                    suse = 5
+                                    print("error")
                             except:
                                 pass
 
@@ -407,7 +408,7 @@ class DateNormalizer():
         for index, el in enumerate(numerical_section_list):
             if self.is_number(el) or (el.replace('.', '', 1).isdigit()):
                 tmp_section_list.append(el)
-            elif el == u"و":
+            elif el == "و":
                 value += self.list2num(tmp_section_list)
                 tmp_section_list[:] = []
         if len(tmp_section_list) > 0:
@@ -432,7 +433,7 @@ class DateNormalizer():
 
         i = start_index+1
         while(i < len(token_list)):
-            if token_list[i] == u"و" and (i+1)<len(token_list):
+            if token_list[i] == "و" and (i+1)<len(token_list):
                 if self.is_number(token_list[i+1]) or (token_list[i+1].replace('.', '', 1).isdigit()):
                     number_section.append(i)
                     number_section.append(i+1)
@@ -448,7 +449,7 @@ class DateNormalizer():
 
     def normalize_numbers(self, token_list, converted=""):
         for i, el in enumerate(token_list):
-            if el.endswith(u"ین") and self.is_number(el[:-2]):
+            if el.endswith("ین") and self.is_number(el[:-2]):
                 token_list[i] = el[:-2]
         finded = self.find_number_location(token_list)
         if len(finded) == 0:
@@ -466,20 +467,21 @@ class DateNormalizer():
 
 class PinglishNormalizer():
     def __init__(self):
+        self.data_helper = DataHelper()
         self.file_dir = os.path.dirname(os.path.realpath(__file__)) + "/"
 
         self.en_dict_filename = self.file_dir + "resource/tokenizer/enDict"
-        self.en_dict = data_helper.load_var(self.en_dict_filename)
+        self.en_dict = self.data_helper.load_var(self.en_dict_filename)
 
         self.fa_dict_filename = self.file_dir + "resource/tokenizer/faDict"
-        self.fa_dict = data_helper.load_var(self.fa_dict_filename)
+        self.fa_dict = self.data_helper.load_var(self.fa_dict_filename)
 
 
     def pingilish2persian(self, pinglish_words_list):
 
         for i, word in enumerate(pinglish_words_list):
             if word in self.en_dict:
-                pinglish_words_list[i] = self.en_dict[word].decode("utf-8")
+                pinglish_words_list[i] = self.en_dict[word]#.decode("utf-8")
                 #inp = inp.replace(word, enDict[word], 1)
             else:
                 ch = self.characterize(word)
@@ -489,7 +491,7 @@ class PinglishNormalizer():
                     am = self.escalation(wd)
                     asd = ''.join(am)
                     if asd in self.fa_dict:
-                        pinglish_words_list[i] = asd.decode("utf-8")
+                        pinglish_words_list[i] = asd#.decode("utf-8")
                         #inp = inp.replace(word, asd, 1)
         inp = " ".join(x for x in pinglish_words_list)
         return inp

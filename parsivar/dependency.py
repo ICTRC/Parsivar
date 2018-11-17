@@ -1,14 +1,11 @@
-# coding=utf-8
 from nltk.parse.dependencygraph import DependencyGraph
-from nltk.parse import malt
 from nltk.parse.malt import MaltParser
 import os
-import codecs
 import tempfile
-import postagger
-import tokenizer
-import normalizer
-import stemmer
+from .stemmer import FindStems
+from .postagger import POSTagger
+from .tokenizer import Tokenizer
+from .normalizer import Normalizer
 
 
 class MyMaltParser(MaltParser):
@@ -54,7 +51,7 @@ class MyMaltParser(MaltParser):
             raise Exception("MaltParser parsing failed: %s" % (' '.join(cmd)))
 
         dependency_graph = []
-        with codecs.open(output_file.name, encoding='utf-8') as infile:
+        with open(output_file.name, encoding='utf-8') as infile:
             content = infile.read().strip().split('\n\n')
             for sent in content:
                 dependency_graph.append(DependencyGraph(sent))
@@ -71,22 +68,22 @@ class DependencyParser:
         self.dir_path = os.path.dirname(os.path.realpath(__file__)) + "/"
 
         if _normalizer is None:
-            self.my_normalizer = normalizer.Normalizer()
+            self.my_normalizer = Normalizer()
         else:
             self.my_normalizer = _normalizer
 
         if _tokenizer is None:
-            self.my_tokenizer = tokenizer.Tokenizer()
+            self.my_tokenizer = Tokenizer()
         else:
             self.my_tokenizer = _tokenizer
 
         if _stemmer is None:
-            self.my_stemmer = stemmer.FindStems()
+            self.my_stemmer = FindStems()
         else:
             self.my_stemmer = _stemmer
 
         if _tagger is None:
-            self.my_tagger = postagger.POSTagger(tagging_model="wapiti").parse
+            self.my_tagger = POSTagger(tagging_model="wapiti").parse
         else:
             self.my_tagger = _tagger
 
@@ -103,9 +100,9 @@ class DependencyParser:
                 if len(sent) == 0:
                     continue
                 lines = sent.split('\n')
-                sent_tokens = [x.split('\t')[1].decode('utf-8') for x in lines]
+                sent_tokens = [x.split('\t')[1] for x in lines]
                 tagged_sent = tagger(sent_tokens)
-                tages = [x[1].encode('utf-8') for x in tagged_sent]
+                tages = [x[1] for x in tagged_sent]
                 for j, line in enumerate(lines):
                     line = line.split('\t')
                     line[3] = tages[j]
