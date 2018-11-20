@@ -4,7 +4,7 @@ import os
 from .tokenizer import Tokenizer
 from .data_helper import DataHelper
 from .token_merger import ClassifierChunkParser
-import tmp
+
 
 class Normalizer():
 
