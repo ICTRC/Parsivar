@@ -1,0 +1,11 @@
+include *.txt
+include *.md
+include parsivar/resource/postagger/UPC_full_model_wapiti
+include parsivar/resource/postagger/NC_model
+include parsivar/resource/postagger/Nmodel
+include parsivar/resource/tokenizer/enDict
+include parsivar/resource/tokenizer/faDict
+include parsivar/resource/dependency_parser/total_dep_parser.mco
+recursive-include parsivar *.txt
+recursive-include parsivar *.pckl
+recursive-include parsivar *.jar
