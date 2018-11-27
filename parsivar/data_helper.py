@@ -8,7 +8,7 @@ class DataHelper():
     def __init__(self):
         pass
 
-    def clean_text(self, text_doc):
+    def clean_text(self, text_doc, new_line_elimination):
         punctuations = r')(}{:؟!،؛»«.' + r"/<>?.,:;"
         punctuations = '[' + punctuations + string.punctuation + ']'
         punctuations = punctuations.replace("@", "")
@@ -19,7 +19,6 @@ class DataHelper():
         # tmp = re.findall(pattern, text_doc)
         # newstring = re.sub(pattern, eliminate_pattern, text_doc)
 
-
         pattern = '\s*' + punctuations + '+' + '\s*'
         tmp = re.findall(pattern, text_doc)
         newstring = re.sub(pattern, self.add_space, text_doc)
@@ -29,10 +28,12 @@ class DataHelper():
         # tmp = re.findall(pattern, newstring)
         # newstring = re.sub(pattern, rep, newstring)
 
-
         pattern = r'[\n]+'
         tmp = re.findall(pattern, newstring)
-        newstring = re.sub(pattern, "\n ", newstring)
+        if new_line_elimination:
+            newstring = re.sub(pattern, " ", newstring)
+        else:
+            newstring = re.sub(pattern, "\n", newstring)
 
         punctuations = r")(}{:؟!،؛»«.@$&%" + r"/<>?.,:;"
         latinLettersDigits = r"a-zA-Z0-9"
@@ -40,11 +41,15 @@ class DataHelper():
         tmp = re.findall(pattern, newstring)
         newstring = re.sub(pattern, self.eliminate_pattern, newstring)
 
+        pattern = r'[ ]+'
+        tmp = re.findall(pattern, newstring)
+        newstring = re.sub(pattern, ' ', newstring)
+
         return newstring
 
     def add_space(self, mystring):
         mystring = mystring.group()  # this method return the string matched by re
-        mystring = mystring.strip()  # ommiting the whitespace around the pucntuation
+        mystring = mystring.strip(' ')  # ommiting the whitespace around the pucntuation
         mystring = " " + mystring + " "  # adding a space after and before punctuation
         return mystring
 

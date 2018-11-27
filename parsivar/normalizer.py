@@ -296,16 +296,16 @@ class Normalizer():
             out_sentences = out_sentences + ' ' + wrds[i + 2]
         return out_sentences
 
-    def normalize(self, doc_string):
-        #return data_helper.clean_text(self.sub_alphabets(doc_string))
-        normalized_string = self.data_helper.clean_text(self.sub_alphabets(doc_string)).strip()
+    def normalize(self, doc_string, new_line_elimination=False):
+        normalized_string = self.sub_alphabets(doc_string)
+        normalized_string = self.data_helper.clean_text(normalized_string, new_line_elimination).strip()
 
         if self.statistical_space_correction:
             token_list = normalized_string.strip().split()
             token_list = [x.strip("\u200c") for x in token_list if len(x.strip("\u200c")) != 0]
             token_list = self.token_merger.merg_tokens(token_list, self.token_merger_model, self.half_space_char)
             normalized_string = " ".join(x for x in token_list)
-            normalized_string = self.data_helper.clean_text(normalized_string)
+            normalized_string = self.data_helper.clean_text(normalized_string, new_line_elimination)
         else:
             normalized_string = self.space_correction(self.space_correction_plus1(self.space_correction_plus2(self.space_correction_plus3(normalized_string)))).strip()
 

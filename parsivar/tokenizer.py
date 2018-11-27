@@ -11,8 +11,11 @@ class Tokenizer():
         return token_list
 
     def tokenize_sentences(self, doc_string):
-        pattern = r'([!\.\?؟:]+)[ \n]+'
-        rep = r'\1\t\t'
-        doc_string = re.sub(pattern, rep, doc_string)
+        pattern = r'([!\.\?؟:]+)[\n]+'
+        doc_string = re.sub(pattern, '\t\t', doc_string)
+
+        pattern = r'[\n]+'
+        doc_string = re.sub(pattern, '\t\t', doc_string)
+
         doc_string = doc_string.split('\t\t')
         return doc_string
