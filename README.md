@@ -93,6 +93,6 @@ Python library for preprocessing Persian text.
 
 
 ## Installation
-The latest verson can be installed through `pip`:
+The latest version can be installed through `pip`:
 
-	pip install parsivar
+	pip3 install parsivar
