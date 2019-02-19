@@ -89,6 +89,11 @@ Python library for preprocessing Persian text.
 (به (گزارش (ایسنا (سمینار (شیمی آلی)))))
 (یابد (سمینار این) (تا (شهریور ۱۳)) ادامه می)
 
+>>> from parsivar import SpellCheck
+>>> myspell_checker = SpellCheck()
+>>> res = myspell_checker.spell_corrector("نمازگذاران وارد مسلی شدند.")
+'نمازگزاران وارد مصلی شدند .'
+
 ```
 
 
