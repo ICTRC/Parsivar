@@ -112,7 +112,6 @@ class DataHelper():
                                 if (tmp_pos == 'N'):
                                     lexicon_stem.add(t)
 
-
         with open(verb_tense_path, "r") as bon_file:
             bon_file_content = bon_file.readlines()
             for el in bon_file_content:

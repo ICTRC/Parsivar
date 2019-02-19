@@ -6,3 +6,4 @@ from .postagger import POSTagger
 from .stemmer import FindStems
 from .tokenizer import Tokenizer
 from .token_merger import ClassifierChunkParser
+from .spell_checker import SpellCheck

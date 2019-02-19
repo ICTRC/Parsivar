@@ -47,9 +47,6 @@ class Normalizer():
                 self.token_merger_model = self.token_merger.train_merger(self.train_file_path, test_split=0)
                 self.data_helper.save_var(self.token_merger_path, self.token_merger_model)
 
-
-
-
     def load_dictionary(self, file_path):
         dict = {}
         with open(file_path, 'r', encoding='utf-8') as f:

@@ -2,6 +2,7 @@ import os
 from .data_helper import DataHelper
 from .normalizer import Normalizer
 
+
 class FindStems():
 
     def __init__(self):
