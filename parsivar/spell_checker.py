@@ -136,7 +136,7 @@ class SpellCheck:
             x = math.log2(x)
             return x
         else:
-            return -35
+            return -28
 
     def get_word_probability(self, word):
         lex_dict = self.onegram_lm[0]
@@ -186,6 +186,9 @@ class SpellCheck:
 
         possible_words.append(wi)
         operation_list.append("Nothing")
+
+        if len(wi) == 1:
+            return possible_words, operation_list
 
         '''Merg Split Spell'''
         [c_list, o_list] = self.build_similar_words(word_seq, index, wi, "Merg")
@@ -237,7 +240,7 @@ class SpellCheck:
     def is_ingroup_substitution(self, main_word, candidate_word):
         main_word = list(main_word)
         candidate_word = list(candidate_word)
-
+        flag = False
         for i, c in enumerate(main_word):
             if c == candidate_word[i]:
                 continue
@@ -337,12 +340,14 @@ class SpellCheck:
                     onegram_score += 10
             elif operation == 'Deletion' or operation == 'Insertion':
                 onegram_score += 5
+                if '\u200c' in candidate and '\u200c' not in current_word:
+                    onegram_score += 5
             elif operation == 'Split' or operation == 'Merg':
                 onegram_score += 7
             elif operation == 'Nothing':
-                onegram_score += 25
+                onegram_score += 20
 
-            score = 1*onegram_score + 0.5*bigram_score_with_prev + 0.5*bigram_score_next
+            score = 1*onegram_score + 0.7*bigram_score_with_prev + 0.7*bigram_score_next
 
             if score > best_score:
                 best_operation = operation
