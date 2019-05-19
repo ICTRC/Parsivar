@@ -33,9 +33,10 @@ class DataHelper():
         if new_line_elimination:
             newstring = re.sub(pattern, " ", newstring)
         else:
-            newstring = re.sub(pattern, "\n", newstring)
+            # newstring = re.sub(pattern, "\n", newstring)
+            pass
 
-        punctuations = r")(}{:؟!،؛»«.@$&%" + r"/<>?.,:;"
+        punctuations = r")(}{:؟!-،؛»«.@$&%" + r"/<>?.,:;"
         latinLettersDigits = r"a-zA-Z0-9"
         pattern = r'[^' + punctuations + latinLettersDigits + 'آ-ی' + '‌' + '\d\s:]'
         tmp = re.findall(pattern, newstring)
