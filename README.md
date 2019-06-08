@@ -101,3 +101,7 @@ Python library for preprocessing Persian text.
 The latest version can be installed through `pip`:
 
 	pip3 install parsivar
+
+	To use the spell checker module download it's resources from
+	https://www.dropbox.com/s/tlyvnzv1ha9y1kl/spell.zip?dl=0
+	and after extraction copy the spell/ directory to parsivar/resource.

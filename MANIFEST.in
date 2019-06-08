@@ -1,3 +1,4 @@
+
 include *.txt
 include *.md
 include parsivar/resource/postagger/UPC_full_model_wapiti
@@ -10,7 +11,7 @@ include parsivar/resource/stemmer/stem_lex.pckl
 include parsivar/resource/stemmer/stem_verbMap.pckl
 include parsivar/resource/stemmer/verbStemDict.pckl
 include parsivar/resource/tokenizer/TokenMerger.pckl
-include parsivar/resource/spell/onegram.pckl
-include parsivar/resource/spell/mybigram_lm.pckl
+#include parsivar/resource/spell/onegram.pckl
+#include parsivar/resource/spell/mybigram_lm.pckl
 recursive-include parsivar *.txt
 recursive-include parsivar *.jar
