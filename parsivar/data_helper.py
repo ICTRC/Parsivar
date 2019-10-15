@@ -19,9 +19,16 @@ class DataHelper():
         # tmp = re.findall(pattern, text_doc)
         # newstring = re.sub(pattern, eliminate_pattern, text_doc)
 
+
+        #finding the numbers
+        pattern = r"[-+]?\d*\.\d+|\d+"
+        nums_list = re.findall(pattern, text_doc)
+        newstring = re.sub(pattern, 'floatingpointnumber', text_doc)
+
+
         pattern = '\s*' + punctuations + '+' + '\s*'
-        tmp = re.findall(pattern, text_doc)
-        newstring = re.sub(pattern, self.add_space, text_doc)
+        tmp = re.findall(pattern, newstring)
+        newstring = re.sub(pattern, self.add_space, newstring)
 
         # pattern = u'([a-zA-Z0-9]+)(\s*)(' + punctuations + u')(\s*)([a-zA-Z0-9]+)'
         # rep = ur'\1\3\5'
@@ -45,6 +52,10 @@ class DataHelper():
         pattern = r'[ ]+'
         tmp = re.findall(pattern, newstring)
         newstring = re.sub(pattern, ' ', newstring)
+
+        for number in nums_list:
+            pattern = 'floatingpointnumber'
+            newstring = re.sub(pattern, number, newstring, 1)
 
         return newstring
 
