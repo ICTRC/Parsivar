@@ -8,7 +8,7 @@ setup(name='parsivar',
 	  author_email='',
 	  url='',
 	  download_url = '',
-	  install_requires=['nltk==3.2.2'],
+	  install_requires=['nltk==3.4.5'],
 	  python_requires=">=3.3",
 	  classifiers = [],
 	  include_package_data=True
