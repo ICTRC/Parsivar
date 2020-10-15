@@ -1,7 +1,7 @@
 parsivar
 ------------
 
-Python library for preprocessing Persian text.
+Python library for Persian text preprocessing.
 
 + Text Normalizing
 + Half space correction in Persian text
@@ -9,6 +9,8 @@ Python library for preprocessing Persian text.
 + Word stemming
 + POS tagger
 + Shallow parser (Chunker)
++ Dependency Parser
++ Spell Checker
 
 ##requirements
 
