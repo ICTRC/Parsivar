@@ -1,6 +1,6 @@
 import os
 import math
-from typing import Counter, Union
+from typing import Counter, Union, Optional
 
 from .normalizer import Normalizer
 from .tokenizer import Tokenizer
@@ -9,8 +9,8 @@ from .data_helper import DataHelper
 
 class SpellCheck:
     def __init__(self,
-                 onegram_lm: Union[None, str, Counter],
-                 bigram_lm: Union[None, str, Counter]
+                 onegram_lm: Optional[Union[str, Counter]] = None,
+                 bigram_lm: Optional[Union[str, Counter]] = None
                  ):
         """SpellCheck init method
 
