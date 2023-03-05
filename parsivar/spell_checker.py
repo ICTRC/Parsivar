@@ -1,6 +1,6 @@
-import pickle
-import math
 import os
+import math
+from typing import Counter, Union, Optional
 
 from .normalizer import Normalizer
 from .tokenizer import Tokenizer
@@ -8,15 +8,42 @@ from .data_helper import DataHelper
 
 
 class SpellCheck:
-    def __init__(self):
+    def __init__(self,
+                 onegram_lm: Optional[Union[str, Counter]] = None,
+                 bigram_lm: Optional[Union[str, Counter]] = None
+                 ):
+        """SpellCheck init method
+
+        Args:
+            onegram_lm (Union[None, str, Counter]): The One-gram language model,
+            based on the type of this input, the SpellCheck instance can be 
+            created using data file under __file__, or another user-provided 
+            path, or the object of the language model.
+            bigram_lm (Union[None, str, Counter]): The Bi-gram language model,
+            based on the type of this input, the SpellCheck instance can be 
+            created using data file under __file__, or another user-provided 
+            path, or the object of the language model.
+        """
         self.normalizer = Normalizer()
         self.tokenizer = Tokenizer()
         self.data_helper = DataHelper()
 
         self.dir_path = os.path.dirname(os.path.realpath(__file__)) + "/"
 
-        self.bigram_lm = self.data_helper.load_var(self.dir_path + "resource/spell/mybigram_lm.pckl")
-        self.onegram_lm = self.data_helper.load_var(self.dir_path + "resource/spell/onegram.pckl")
+        if bigram_lm is None or isinstance(bigram_lm, str):
+            bigram_file_path = bigram_lm if bigram_lm else self.dir_path + \
+                "resource/spell/mybigram_lm.pckl"
+            self.bigram_lm = self.data_helper.load_var(bigram_file_path)
+        else:
+            self.bigram_lm = bigram_lm
+
+        if onegram_lm is None or isinstance(onegram_lm, str):
+            onegram_file_path = onegram_lm if onegram_lm else self.dir_path + \
+                "resource/spell/onegram.pckl"
+            self.onegram_lm = self.data_helper.load_var(onegram_file_path)
+        else:
+            self.onegram_lm = onegram_lm
+
         self.ingroup_chars = [{'ا', 'آ', 'ع'},
                               {'ت', 'ط'},
                               {'ث', 'س', 'ص'},
