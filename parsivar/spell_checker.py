@@ -16,6 +16,7 @@ class SpellCheck:
         self.dir_path = os.path.dirname(os.path.realpath(__file__)) + "/"
 
         self.bigram_lm = self.data_helper.load_var(self.dir_path + "resource/spell/mybigram_lm.pckl")
+        #👆
         self.onegram_lm = self.data_helper.load_var(self.dir_path + "resource/spell/onegram.pckl")
         self.ingroup_chars = [{'ا', 'آ', 'ع'},
                               {'ت', 'ط'},
