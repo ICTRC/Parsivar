@@ -26,7 +26,7 @@ class DataHelper():
         newstring = re.sub(pattern, 'floatingpointnumber', text_doc)
 
 
-        pattern = '\s*' + punctuations + '+' + '\s*'
+        pattern = r'\s*' + punctuations + r'+' + r'\s*'
         tmp = re.findall(pattern, newstring)
         newstring = re.sub(pattern, self.add_space, newstring)
 
@@ -45,7 +45,7 @@ class DataHelper():
 
         punctuations = r")(}{:؟!-،؛»«.@$&%" + r"/<>?.,:;"
         latinLettersDigits = r"a-zA-Z0-9"
-        pattern = r'[^' + punctuations + latinLettersDigits + 'آ-ی' + '‌' + '\d\s:]'
+        pattern = r'[^' + punctuations + latinLettersDigits + r'آ-ی' + '‌' + r'\d\s:]'
         tmp = re.findall(pattern, newstring)
         newstring = re.sub(pattern, self.eliminate_pattern, newstring)
 
@@ -150,3 +150,4 @@ class DataHelper():
 
         verb_tense_map = [verb_p2f_map, verb_f2p_map]
         return lexicon_stem, verb_stem, verb_tense_map, irregular_noun
+
