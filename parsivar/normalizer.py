@@ -136,7 +136,7 @@ class Normalizer():
         a23 = r"ﻒ|ﻑ|ﻔ|ﻓ"
         b23 = r"ف"
         c23 = sub(a23, b23, c22)
-        a24 = r"ﻕ|ڤ|ﻖ|ﻗ"
+        a24 = r"ﻕ|ﻖ|ﻗ"
         b24 = r"ق"
         c24 = sub(a24, b24, c23)
         a25 = r"ڭ|ﻚ|ﮎ|ﻜ|ﮏ|ګ|ﻛ|ﮑ|ﮐ|ڪ|ك"
@@ -166,9 +166,19 @@ class Normalizer():
         a33 = r'¬'
         b33 = r'‌'
         c33 = sub(a33, b33, c32)
+        # U+06A4 VEH is a /v/ sound, not a qaf presentation form (issue #12):
+        # map it to feh, matching Hazm's normalizer.
+        a34 = r"ڤ"
+        b34 = r"ف"
+        c34 = sub(a34, b34, c33)
+        # U+FDFC RIAL SIGN must become the word ریال before
+        # clean_text() drops it as an unknown character (issue #12).
+        a35 = r"﷼"
+        b35 = r"ریال"
+        c35 = sub(a35, b35, c34)
         pa0 = r'•|·|●|·|・|∙|｡|ⴰ'
         pb0 = r'.'
-        pc0 = sub(pa0, pb0, c33)
+        pc0 = sub(pa0, pb0, c35)
         pa1 = r',|٬|٫|‚|，'
         pb1 = r'،'
         pc1 = sub(pa1, pb1, pc0)
